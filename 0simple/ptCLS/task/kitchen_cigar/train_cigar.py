@@ -22,9 +22,9 @@ def starttrain():
     # 创建训练器
     modeltrainer = ModelTrainer.inittrainer(premodule + "configs.kitchen_cigar_configv1")
     # modeltrainer.classdemo()
-    modeltrainer.train()
+    # modeltrainer.train()
     # 导出模型
-    # exportmodel(modeltrainer)
+    exportmodel(modeltrainer)
 
 
 def evalmodel():
