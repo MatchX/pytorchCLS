@@ -3,6 +3,27 @@
 """
 version=0.1
 模型导出器
+
+libtorch
+
+CPU:
+https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.2.0.zip
+https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-without-deps-1.2.0.zip
+https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-static-with-deps-1.2.0.zip
+https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-static-without-deps-1.2.0.zip
+
+CUDA 9.2:
+https://download.pytorch.org/libtorch/cu92/libtorch-cxx11-abi-shared-with-deps-1.2.0.zip
+https://download.pytorch.org/libtorch/cu92/libtorch-cxx11-abi-shared-without-deps-1.2.0.zip
+https://download.pytorch.org/libtorch/cu92/libtorch-cxx11-abi-static-with-deps-1.2.0.zip
+https://download.pytorch.org/libtorch/cu92/libtorch-cxx11-abi-static-without-deps-1.2.0.zip
+
+CUDA 10.0:
+https://download.pytorch.org/libtorch/cu100/libtorch-cxx11-abi-shared-with-deps-1.2.0.zip
+https://download.pytorch.org/libtorch/cu100/libtorch-cxx11-abi-shared-without-deps-1.2.0.zip
+https://download.pytorch.org/libtorch/cu100/libtorch-cxx11-abi-static-with-deps-1.2.0.zip
+https://download.pytorch.org/libtorch/cu100/libtorch-cxx11-abi-static-without-deps-1.2.0.zip
+
 """
 
 
