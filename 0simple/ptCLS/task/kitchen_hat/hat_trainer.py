@@ -213,6 +213,9 @@ class ModelTrainer(torchtools.ModelTrainerbase):
                     pbar.set_postfix(Info=logmsg, refresh=False)
                     pbar.update()
             # batch_idx += 1
+            del inputs
+            del targets
+            del loss
 
         if pbar is not None:
             pbar.close()
@@ -236,7 +239,7 @@ class ModelTrainer(torchtools.ModelTrainerbase):
                     ax.imshow(self.conv_out0.outfeatures[0][i])
                 plt.show()
             # 记录训练状态
-            self.sumwriter.add_scalars('train_data/scalar_group', {'loss': loss, 'acc': trainacc}, epoch)
+            self.sumwriter.add_scalars('train_data/scalar_group', {'loss': train_loss, 'acc': trainacc}, epoch)
             logging.info(logmsg)
         # print("train_lr=", self.train_scheduler.get_last_lr())
 

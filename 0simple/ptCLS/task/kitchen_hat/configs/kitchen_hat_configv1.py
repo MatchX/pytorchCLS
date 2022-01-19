@@ -160,7 +160,7 @@ class modelconfig(configbase.configBase):
         # ])
         colorJitter = (0.2, 0.2, 0.1, 0.1)
         torchtransseq = transforms.Compose([
-            configbase.RandomCrop(0.1, 2.0, new_expansion_rate=0.15, to_bgr=False),  # set to_bgr=False
+            configbase.RandomCrop(0.05, 2.0, new_expansion_rate=0.15, to_bgr=False),  # set to_bgr=False
             transforms.Resize(self.datacfg.traininputsize),  # [H,W] format
             transforms.ColorJitter(*colorJitter),
             transforms.RandomRotation((-10, 10)),
@@ -172,7 +172,7 @@ class modelconfig(configbase.configBase):
         # 测试数据处理流程
         self.datacfg.transformpipeline4test = Dict()
         torchtransseq = transforms.Compose([
-            configbase.CenterCrop(1.15/3, to_bgr=False),  # set to_bgr=False
+            configbase.CenterCrop(1.1/3, to_bgr=False),  # set to_bgr=False
             transforms.Resize(self.datacfg.traininputsize),  # [H,W] format
             transforms.ToTensor(),
             transforms.Normalize(mean=self.datacfg.data_mean, std=self.datacfg.std_mean),

@@ -57,6 +57,8 @@ class modelconfig(configbase.configBase):
             predir + "train_2021_12_08/",
             predir + "train_2021_12_09/",
             predir + "train_2021_12_10/",
+            predir + "train_2022_01_07/",
+            predir + "train_2022_01_17/",
         ]
 
         # 测试数据
@@ -94,7 +96,7 @@ class modelconfig(configbase.configBase):
 
         # laoder config
         self.datacfg.droplast = True  # 丢弃最后的batch数据
-        self.datacfg.workernum = 16  # 数据加载线程数
+        self.datacfg.workernum = 32  # 数据加载线程数
         self.datacfg.cacheimg = False  # 将训练图片放入内存中缓存
         self.datacfg.preloader = False  # use preloader load data
         self.datacfg.multi_epochs_loader = False  # use the multi-epochs-loader to save time at the beginning of every epoch
@@ -187,7 +189,7 @@ class modelconfig(configbase.configBase):
         # torchtools.SoftTargetCrossEntropy  # torchtools.LabelSmoothingCrossEntropy # nn.CrossEntropyLoss
         self.schedulecfg.lossfun = "torchtools.LabelSmoothingCrossEntropy"
         self.schedulecfg.lr_schedule = "CosineLRScheduler"
-        self.schedulecfg.base_lr = 0.01  # base learnrate
+        self.schedulecfg.base_lr = 0.03  # base learnrate
         self.schedulecfg.warm_up_epoch = 8  # the learning rate warm epoch
         self.schedulecfg.momentum = 0.9  # the optim momentum
         self.schedulecfg.weight_decay = 0.0005  # the optim decay
@@ -200,7 +202,7 @@ class modelconfig(configbase.configBase):
         self.hypcfg.seed = 89  # the init seed
         self.hypcfg.totalepoch = 90  # he tranin total epoch
         self.hypcfg.saverate = 0.5  # 相对于总训练批次 模型保存的比例
-        self.hypcfg.trainbatchsize = 32  # the tranin batch size
+        self.hypcfg.trainbatchsize = 128  # the tranin batch size
         self.hypcfg.testbatchsize = 32  # the test batch size
         self.hypcfg.useamp = True  # use Native AMP for mixed precision training
         self.hypcfg.sync_bn = False  # bn层同步

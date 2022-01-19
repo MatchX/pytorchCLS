@@ -160,10 +160,10 @@ class modelconfig(configbase.configBase):
         # ])
         colorJitter = (0.2, 0.2, 0.1, 0.1)
         torchtransseq = transforms.Compose([
-            configbase.RandomCrop(0.05, 2.0, new_expansion_rate=0.15, to_bgr=False),  # set to_bgr=False
+            configbase.RandomCrop(0.12, 2.0, new_expansion_rate=0.15, to_bgr=False),  # set to_bgr=False
             transforms.Resize(self.datacfg.traininputsize),  # [H,W] format
             transforms.ColorJitter(*colorJitter),
-            transforms.RandomRotation((-10, 10)),
+            transforms.RandomRotation((-15, 15)),
             transforms.ToTensor(),
             transforms.Normalize(mean=self.datacfg.data_mean, std=self.datacfg.std_mean),
         ])
@@ -198,7 +198,7 @@ class modelconfig(configbase.configBase):
         """
         self.hypcfg.log_root = "workdir/"  # log root dir
         self.hypcfg.seed = 89  # the init seed
-        self.hypcfg.totalepoch = 90  # he tranin total epoch
+        self.hypcfg.totalepoch = 120  # he tranin total epoch
         self.hypcfg.saverate = 0.5  # 相对于总训练批次 模型保存的比例
         self.hypcfg.trainbatchsize = 32  # the tranin batch size
         self.hypcfg.testbatchsize = 32  # the test batch size
