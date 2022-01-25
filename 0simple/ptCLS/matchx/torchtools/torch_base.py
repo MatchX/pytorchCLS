@@ -26,6 +26,7 @@ ssl_verify: true
 安装第三方库
 pip install -i https://mirrors.aliyun.com/pypi/simple --upgrade opencv-python
 pip install -i https://mirrors.aliyun.com/pypi/simple --upgrade tensorwatch
+pip install mmcv-full==1.4.2 -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.10.0/index.html
 
 安装指定版本tensorflow
 pip install -i https://mirrors.aliyun.com/pypi/simple --upgrade tensorflow-gpu==2.0.0
