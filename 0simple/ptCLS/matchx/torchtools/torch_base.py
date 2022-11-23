@@ -379,7 +379,8 @@ class ModelTrainerbase(object):
                           "testacc": testacc
                           }
         else:
-            checkpoint = {"model_state_dict": self.trainnet.state_dict(),
+            checkpoint = {  # "module": self.trainnet,
+                          "model_state_dict": self.trainnet.state_dict(),
                           "ema": deepcopy(self.model_ema.ema).half() if self.model_ema else None,
                           "ema_updates": self.model_ema.updates if self.model_ema else None,
                           "optimizer_state_dict": self.optimizer.state_dict(),
