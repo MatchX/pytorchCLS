@@ -66,8 +66,16 @@ class ModelTrainer(torchtools.ModelTrainerbase):
 
     def makenet(self):
         from timm.models import create_model
-        net = create_model(self.modelcfgdict.modcfg.netname, pretrained=True, num_classes=self.modelcfgdict.datacfg.num_class)
-        assert net is not None, f'net is None'
+        pretrianemodel = self.modelcfgdict.hypcfg.get("pretrainedmodel")
+        if pretrianemodel is None:
+            net = create_model(self.modelcfgdict.modcfg.netname, pretrained=True, num_classes=self.modelcfgdict.datacfg.num_class)
+            assert net is not None, f'net is None'
+        else:
+            assert os.path.exists(pretrianemodel)
+            net = create_model(self.modelcfgdict.modcfg.netname, pretrained=False, num_classes=self.modelcfgdict.datacfg.num_class)
+            assert net is not None, f'net is None'
+            modelstate = torch.load(pretrianemodel)
+            net.load_state_dict(modelstate['model_state_dict'])
         return net
 
     def makeoptimizer(self):

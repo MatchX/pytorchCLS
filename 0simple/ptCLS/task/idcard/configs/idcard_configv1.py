@@ -55,6 +55,8 @@ class modelconfig(configbase.configBase):
         self.datacfg.valdata = [
             predir + "01/"
         ]
+        # for it in self.datacfg.valdata:
+        #     self.datacfg.traindata.append(it)
 
         # 标签类型与对应目录配置
         self.datacfg.label_map = {"zhen": 0, "jia": 1}
@@ -184,8 +186,9 @@ class modelconfig(configbase.configBase):
         生成超参数配置文件
         """
         self.hypcfg.log_root = "workdir/"  # log root dir
+        self.hypcfg.pretrainedmodel = "./221123_02.ptcp"  # 加载模型
         self.hypcfg.seed = 89  # the init seed
-        self.hypcfg.totalepoch = 60  # he tranin total epoch
+        self.hypcfg.totalepoch = 30  # he tranin total epoch
         self.hypcfg.saverate = 0.5  # 相对于总训练批次 模型保存的比例
         self.hypcfg.trainbatchsize = 32  # the tranin batch size
         self.hypcfg.testbatchsize = 32  # the test batch size
