@@ -248,6 +248,8 @@ class Utiltool(object):
             # model_cfgdict = Dict(modelconfig)
             configpack = importlib.import_module(opt.cfg)
             modelconfig = configpack.modelconfig()
+        else:
+            raise Exception("Invalid config file {}!".format(opt.cfg))
 
         # init log
         workdir = None
@@ -271,7 +273,8 @@ class Utiltool(object):
             print(modelconfig)
             # matchx.matchutils.Utiltool.print_config(modelconfig)
             # 备份配置文件
-            cfg = opt.cfg.replace('.', '/') + ".py"
+            # cfg = opt.cfg.replace('.', '/') + ".py"
+            cfg = configpack.__file__
             # cfgfilename = os.path.basename(cfg)
             # copyfile(cfg, workdir + "/" + cfgfilename)
             copyfile(cfg, workdir + "/" + "modelcfg.py")
