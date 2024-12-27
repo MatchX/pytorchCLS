@@ -2,6 +2,7 @@
 """ ImageNet Training Script
 """
 import os
+os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
 import argparse
 import time
 from cigar_trainer import ModelTrainer
@@ -9,8 +10,8 @@ from cigar_trainer import ModelTrainer
 
 def exportmodel(modeltrainer):
     basedir = "./"
-    weight_path = basedir + "epoch_119_-1.00.ptcp"
-    outpath = "./kitchen_cigar_2022.12.13b.onnx"
+    weight_path = basedir + "best.ptcp"
+    outpath = "./kitchen_cigar_01.onnx"
     modeltrainer.convert2onnx(weight_path, outpath)
 
 
@@ -22,9 +23,9 @@ def starttrain():
     # 创建训练器
     modeltrainer = ModelTrainer.inittrainer(premodule + "configs.kitchen_cigar_configv1")
     # modeltrainer.classdemo()
-    # modeltrainer.train()
+    modeltrainer.train()
     # 导出模型
-    exportmodel(modeltrainer)
+    #exportmodel(modeltrainer)
 
 
 def evalmodel():

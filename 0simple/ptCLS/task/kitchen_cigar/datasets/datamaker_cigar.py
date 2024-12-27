@@ -44,6 +44,7 @@ class kitchen_hatDataSet(torch.utils.data.dataset.Dataset):
         # 配置信息
         self.root_pathlist = root_path
         self.label_map = dataconfig.label_map
+        self.num_class = dataconfig.num_class
         self.dataconfig = dataconfig
         self.cacheimg = dataconfig.cacheimg
         self.lbbalance = dataconfig.lbbalance  # 启用标签均衡
@@ -102,7 +103,7 @@ class kitchen_hatDataSet(torch.utils.data.dataset.Dataset):
                             fr.writelines(relative_path + "\t" + str(label) + "\n")
 
     def __premakedata(self):
-        labelcountlist = [0] * len(self.label_map)  # 每个类别数据总数统计
+        labelcountlist = [0] * self.num_class  # 每个类别数据总数统计
 
         imginx = 0
         for filedir in self.root_pathlist:

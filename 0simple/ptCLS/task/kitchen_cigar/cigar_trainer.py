@@ -438,7 +438,7 @@ class ModelTrainer(torchtools.ModelTrainerbase):
                           inputs,
                           output_onnx,
                           export_params=True,
-                          opset_version=11,
+                          opset_version=10,
                           do_constant_folding=True,
                           input_names=input_names,
                           output_names=output_names,
