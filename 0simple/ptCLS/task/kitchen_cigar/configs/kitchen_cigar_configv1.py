@@ -30,7 +30,7 @@ class modelconfig(configbase.configBase):
         self.modcfg.train_type = "kitche_cigar"
         self.modcfg.trainflg = "V1"
         # resnet26d resnet34d resnet50d resnet101d resnet152d resnet200d  vit_base_patch16_224 vit_base_patch16_224_in21k regnety_032 regnety_120 vit_tiny_patch16_224_in21k
-        self.modcfg.netname = "vit_tiny_patch16_224_in21k"
+        self.modcfg.netname = "resnet34d" # "vit_tiny_patch16_224_in21k"
 
     def _makedataconfig(self):
         """
@@ -107,6 +107,7 @@ class modelconfig(configbase.configBase):
             iaa.GaussianBlur(sigma=(0.0, 0.2)),
         ])
         self.datacfg.transformpipeline4train.imgaug = imgaugseg
+        self.datacfg.imgaugseg_epoch_ratio = 0.8
 
         # albu
         albutransseq = albu.Compose([
@@ -155,10 +156,10 @@ class modelconfig(configbase.configBase):
         # ])
         colorJitter = (0.2, 0.2, 0.1, 0.1)
         torchtransseq = transforms.Compose([
-            configbase.RandomCrop(0.2, 2.0, new_expansion_rate=0.5, to_bgr=False),  # set to_bgr=False
+            configbase.RandomCrop(0.1, 2.0, new_expansion_rate=0.5, to_bgr=False),  # set to_bgr=False
             transforms.Resize(self.datacfg.traininputsize),  # [H,W] format
             transforms.ColorJitter(*colorJitter),
-            transforms.RandomRotation((-60, 60)),
+            transforms.RandomRotation((-20, 20)),
             transforms.ToTensor(),
             transforms.Normalize(mean=self.datacfg.data_mean, std=self.datacfg.std_mean),
         ])

@@ -119,6 +119,9 @@ class ModelTrainer(torchtools.ModelTrainerbase):
         loss = 0
         trainacc = 0
         logmsg = None
+        epochratio = epoch / self.EPOCHs
+        if epochratio >= self.dataconfig.imgaugseg_epoch_ratio:
+            self.dataset.traindataset.dataset.IMGAUGSEG_Enable.value = False
 
         datasize = self.dataset.traindatasize
         # batch_idx = 0
@@ -210,6 +213,9 @@ class ModelTrainer(torchtools.ModelTrainerbase):
                     pbar.set_postfix(Info=logmsg, refresh=False)
                     pbar.update()
             # batch_idx += 1
+            del inputs
+            del targets
+            del loss
 
         if pbar is not None:
             pbar.close()
@@ -233,7 +239,7 @@ class ModelTrainer(torchtools.ModelTrainerbase):
                     ax.imshow(self.conv_out0.outfeatures[0][i])
                 plt.show()
             # 记录训练状态
-            self.sumwriter.add_scalars('train_data/scalar_group', {'loss': loss, 'acc': trainacc}, epoch)
+            self.sumwriter.add_scalars('train_data/scalar_group', {'loss': train_loss, 'acc': trainacc}, epoch)
             logging.info(logmsg)
         # print("train_lr=", self.train_scheduler.get_last_lr())
 
@@ -303,9 +309,9 @@ class ModelTrainer(torchtools.ModelTrainerbase):
         # init env
         modelconfig, opt, device, workdir = matchx.Utiltool.init_pytorch_env(configpath)
         # make data
-        dataset = dataloaderMaker.makeroad_dataset(modelconfig, opt.global_rank)
+        datasetloader, dataset  = dataloaderMaker.makeroad_dataset(modelconfig, opt.global_rank)
         # 创建训练器
-        modeltrainer = ModelTrainer(modelconfig, opt, dataset, device, workdir)
+        modeltrainer = ModelTrainer(modelconfig, opt, datasetloader, device, workdir)
         return modeltrainer
 
     """
@@ -438,7 +444,7 @@ class ModelTrainer(torchtools.ModelTrainerbase):
                           inputs,
                           output_onnx,
                           export_params=True,
-                          opset_version=10,
+                          opset_version=14,
                           do_constant_folding=True,
                           input_names=input_names,
                           output_names=output_names,

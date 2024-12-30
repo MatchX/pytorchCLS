@@ -56,6 +56,7 @@ class kitchen_hatDataSet(torch.utils.data.dataset.Dataset):
         # self.imgmap = {}  # 图片map key=id val=filename
         mmg = multiprocessing.Manager()
         self.imgbufmap = mmg.dict()  # 图片缓存map key=id val=缓存数据
+        self.IMGAUGSEG_Enable = torch.multiprocessing.Value(ctypes.c_bool, istrain)
         self.showimg = False
 
         # 数据增强配置
@@ -141,7 +142,7 @@ class kitchen_hatDataSet(torch.utils.data.dataset.Dataset):
         if self.showimg:
             cv2.imshow("imgorg", imgbgr)
             cv2.waitKey(1)
-        if self.imgaugseg is not None:
+        if self.IMGAUGSEG_Enable.value and self.imgaugseg is not None:
             imageaug = self.imgaugseg(image=imgbgr)
         else:
             imageaug = imgbgr
@@ -198,13 +199,13 @@ class dataloaderMaker(object):
         droplast = dataconfig.droplast
 
         with torch_distributed_zero_first(rank):
-            trainset = kitchen_hatDataSet(root_path=dataconfig.traindata, dataconfig=dataconfig, istrain=True)
-        trainsampler = torch.utils.data.distributed.DistributedSampler(trainset) if rank != -1 else None
+            datasets = kitchen_hatDataSet(root_path=dataconfig.traindata, dataconfig=dataconfig, istrain=True)
+        trainsampler = torch.utils.data.distributed.DistributedSampler(datasets) if rank != -1 else None
         loader_class = torch.utils.data.DataLoader
         if dataconfig.multi_epochs_loader:
             loader_class = torchtools.MultiEpochsDataLoader
         datashuffle = True if trainsampler is None else False
-        trainloader = loader_class(trainset, batch_size=hypconfig.trainbatchsize, shuffle=datashuffle, drop_last=droplast, num_workers=workernum, pin_memory=True, sampler=trainsampler)
+        trainloader = loader_class(datasets, batch_size=hypconfig.trainbatchsize, shuffle=datashuffle, drop_last=droplast, num_workers=workernum, pin_memory=True, sampler=trainsampler)
         if dataconfig.preloader:
             trainloader = torchtools.PrefetchLoader(
                 trainloader,
@@ -233,7 +234,7 @@ class dataloaderMaker(object):
                 testloader = torch.utils.data.DataLoader(testset, batch_size=hypconfig.testbatchsize, shuffle=False, num_workers=workernum, pin_memory=True)
 
         datasetloader = torchtools.dataSetLoader(trainloader, testloader, False, datamean, datastd)
-        return datasetloader
+        return datasetloader, datasets
 
 
 if __name__ == '__main__':
