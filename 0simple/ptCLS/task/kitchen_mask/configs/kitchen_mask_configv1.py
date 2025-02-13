@@ -30,7 +30,7 @@ class modelconfig(configbase.configBase):
         self.modcfg.train_type = "kitche_mask"
         self.modcfg.trainflg = "V1"
         # resnet26d resnet34d resnet50d resnet101d resnet152d resnet200d  vit_base_patch16_224 vit_base_patch16_224_in21k regnety_032 regnety_120
-        self.modcfg.netname = "resnet26d"
+        self.modcfg.netname = "resnet34d"
 
     def _makedataconfig(self):
         """
@@ -39,9 +39,9 @@ class modelconfig(configbase.configBase):
         platformname = platform.system().lower()
         # 训练数据
         if platformname == 'windows':
-            predir = "D:/dataset/chufang/mask_classification/"
+            predir = "E:/AIdata/mask_classification/"
         else:  # linux
-            predir = "/home/hanqiang/dataset/chufang/mask_classification/"
+            predir = "/home/huangjunjie/datasets/chufang/mask_classification/"
         self.datacfg.traindata = [
             predir + "gt_2021.7.20/",
             predir + "gt_2021.7.20_2/",
@@ -51,9 +51,9 @@ class modelconfig(configbase.configBase):
 
         # 测试数据
         if platformname == 'windows':
-            predir = "D:/dataset/chufang/mask_classification/"
+            predir = "E:/AIdata/mask_classification/"
         else:  # linux
-            predir = "/home/hanqiang/dataset/chufang/mask_classification/"
+            predir = "/home/huangjunjie/datasets/chufang/mask_classification/"
         self.datacfg.valdata = [
             predir + "gt_2021.8.24/"
         ]
@@ -68,7 +68,8 @@ class modelconfig(configbase.configBase):
         self.datacfg.std_mean = [0.229, 0.224, 0.225]
 
         # number of classes
-        self.datacfg.num_class = len(self.datacfg.label_map)
+        label_set = set(self.datacfg.label_map.values())
+        self.datacfg.num_class = len(label_set)
 
         # input data size
         self.datacfg.traininputsize = (224, 224)  # W,H
@@ -84,7 +85,7 @@ class modelconfig(configbase.configBase):
 
         # laoder config
         self.datacfg.droplast = True  # 丢弃最后的batch数据
-        self.datacfg.workernum = 6  # 数据加载线程数
+        self.datacfg.workernum = 32  # 数据加载线程数
         self.datacfg.cacheimg = False  # 将训练图片放入内存中缓存
         self.datacfg.preloader = False  # use preloader load data
         self.datacfg.multi_epochs_loader = False  # use the multi-epochs-loader to save time at the beginning of every epoch
@@ -101,6 +102,7 @@ class modelconfig(configbase.configBase):
             iaa.GaussianBlur(sigma=(0.1, 0.3)),
         ])
         self.datacfg.transformpipeline4train.imgaug = imgaugseg
+        self.datacfg.imgaugseg_epoch_ratio = 0.8
 
         # albu
         albutransseq = albu.Compose([
@@ -110,7 +112,7 @@ class modelconfig(configbase.configBase):
             # albu.Transpose(),
             albu.OneOf([
                 # 高斯噪点
-                albu.IAAAdditiveGaussianNoise(),
+                #albu.IAAAdditiveGaussianNoise(),
                 albu.GaussNoise(),
             ], p=0.2),
             albu.OneOf([
@@ -124,13 +126,13 @@ class modelconfig(configbase.configBase):
                 # 畸变相关操作
                 albu.OpticalDistortion(p=0.3),
                 albu.GridDistortion(p=.1),
-                albu.IAAPiecewiseAffine(p=0.3),
+                albu.PiecewiseAffine(p=0.3),
             ], p=0.2),
             albu.OneOf([
                 # 锐化、浮雕等操作
                 albu.CLAHE(clip_limit=2),
-                albu.IAASharpen(),
-                albu.IAAEmboss(),
+                albu.Sharpen(),
+                albu.Emboss(),
                 albu.RandomBrightnessContrast(),
             ], p=0.3),
             albu.HueSaturationValue(p=0.3),
@@ -149,7 +151,8 @@ class modelconfig(configbase.configBase):
         # ])
         colorJitter = (0.2, 0.2, 0.1, 0.1)
         torchtransseq = transforms.Compose([
-            configbase.RandomCrop(0.2, 2.0, new_expansion_rate=1.0, to_bgr=False),  # set to_bgr=False
+            # 此处的扩张系数跟推理框架中的crop_img函数保持一致
+            configbase.RandomCrop(0.2, 2.0, new_expansion_rate=0.5, to_bgr=False),  # set to_bgr=False
             transforms.Resize(self.datacfg.traininputsize),  # [H,W] format
             transforms.ColorJitter(*colorJitter),
             transforms.RandomRotation((-60, 60)),

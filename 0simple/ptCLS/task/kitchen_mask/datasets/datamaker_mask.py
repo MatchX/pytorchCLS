@@ -44,6 +44,7 @@ class kitchen_hatDataSet(torch.utils.data.dataset.Dataset):
         # 配置信息
         self.root_pathlist = root_path
         self.label_map = dataconfig.label_map
+        self.num_class = dataconfig.num_class
         self.dataconfig = dataconfig
         self.cacheimg = dataconfig.cacheimg
         self.lbbalance = dataconfig.lbbalance  # 启用标签均衡
@@ -55,6 +56,7 @@ class kitchen_hatDataSet(torch.utils.data.dataset.Dataset):
         # self.imgmap = {}  # 图片map key=id val=filename
         mmg = multiprocessing.Manager()
         self.imgbufmap = mmg.dict()  # 图片缓存map key=id val=缓存数据
+        self.IMGAUGSEG_Enable = torch.multiprocessing.Value(ctypes.c_bool, istrain)
         self.showimg = False
 
         # 数据增强配置
@@ -102,7 +104,7 @@ class kitchen_hatDataSet(torch.utils.data.dataset.Dataset):
                             fr.writelines(relative_path + "\t" + str(label) + "\n")
 
     def __premakedata(self):
-        labelcountlist = [0] * len(self.label_map)  # 每个类别数据总数统计
+        labelcountlist = [0] * self.num_class  # 每个类别数据总数统计
 
         imginx = 0
         for filedir in self.root_pathlist:
@@ -140,18 +142,18 @@ class kitchen_hatDataSet(torch.utils.data.dataset.Dataset):
         if self.showimg:
             cv2.imshow("imgorg", imgbgr)
             cv2.waitKey(1)
-        if self.imgaugseg is not None:
+        if self.IMGAUGSEG_Enable.value and self.imgaugseg is not None:
             imageaug = self.imgaugseg(image=imgbgr)
+            if self.showimg:
+                cv2.imshow("imgaug", imageaug)
+                cv2.waitKey(1)
         else:
             imageaug = imgbgr
-        if self.showimg:
-            cv2.imshow("imgaug", imageaug)
-            cv2.waitKey(1)
         if self.albutrans is not None:
             imageaug = self.albutrans(image=imageaug)['image']
-        if self.showimg:
-            cv2.imshow("albutrans", imageaug)
-            cv2.waitKey(1)
+            if self.showimg:
+                cv2.imshow("albutrans", imageaug)
+                cv2.waitKey(1)
         # imgrgb = imageaug[:, :, ::-1].transpose((2, 0, 1)).copy()  # BGR to RGB and HWC to CHW
         # imgtensor = torch.from_numpy(imageaug)
         pilimage = Image.fromarray(cv2.cvtColor(imageaug, cv2.COLOR_BGR2RGB))
@@ -163,6 +165,7 @@ class kitchen_hatDataSet(torch.utils.data.dataset.Dataset):
                 # plt.figure("img")
                 # plt.imshow(pil_im)
                 # plt.show()
+                print("show pic=" + imgpath)
                 imgbgr = cv2.cvtColor(np.asarray(pil_im), cv2.COLOR_RGB2BGR)
                 cv2.imshow("imgout", imgbgr)
                 cv2.waitKey(0)
@@ -196,13 +199,13 @@ class dataloaderMaker(object):
         droplast = dataconfig.droplast
 
         with torch_distributed_zero_first(rank):
-            trainset = kitchen_hatDataSet(root_path=dataconfig.traindata, dataconfig=dataconfig, istrain=True)
-        trainsampler = torch.utils.data.distributed.DistributedSampler(trainset) if rank != -1 else None
+            datasets = kitchen_hatDataSet(root_path=dataconfig.traindata, dataconfig=dataconfig, istrain=True)
+        trainsampler = torch.utils.data.distributed.DistributedSampler(datasets) if rank != -1 else None
         loader_class = torch.utils.data.DataLoader
         if dataconfig.multi_epochs_loader:
             loader_class = torchtools.MultiEpochsDataLoader
         datashuffle = True if trainsampler is None else False
-        trainloader = loader_class(trainset, batch_size=hypconfig.trainbatchsize, shuffle=datashuffle, drop_last=droplast, num_workers=workernum, pin_memory=True, sampler=trainsampler)
+        trainloader = loader_class(datasets, batch_size=hypconfig.trainbatchsize, shuffle=datashuffle, drop_last=droplast, num_workers=workernum, pin_memory=True, sampler=trainsampler)
         if dataconfig.preloader:
             trainloader = torchtools.PrefetchLoader(
                 trainloader,
@@ -231,7 +234,7 @@ class dataloaderMaker(object):
                 testloader = torch.utils.data.DataLoader(testset, batch_size=hypconfig.testbatchsize, shuffle=False, num_workers=workernum, pin_memory=True)
 
         datasetloader = torchtools.dataSetLoader(trainloader, testloader, False, datamean, datastd)
-        return datasetloader
+        return datasetloader, datasets
 
 
 if __name__ == '__main__':
