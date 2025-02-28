@@ -2,6 +2,7 @@
 """ ImageNet Training Script
 """
 import os
+os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
 import argparse
 import time
 from mask_trainer import ModelTrainer
@@ -40,5 +41,27 @@ python task/kitchen_mask/train_mask.py --device 0
 fuser -v /dev/nvidia*
 """
 if __name__ == '__main__':
+    # import os
+    # import shutil
+    #
+    # def list_files_in_directory(directory):
+    #     filelist = []
+    #     for root, dirs, files in os.walk(directory):
+    #         for file in files:
+    #             filelist.append(file)
+    #             # print(os.path.join(root, file))
+    #     return filelist
+    #
+    # dir01 = R"F:\0match\AIdata\mask\gt_2025.2.14\01\no"
+    # dir02 = R"F:\0match\AIdata\mask\gt_2025.2.14\01\no_out"
+    # outdir = R"F:\0match\AIdata\mask\gt_2025.2.14\01\0out"
+    #
+    # flist01 = list_files_in_directory(dir01)
+    # flist02 = list_files_in_directory(dir02)
+    # foutlist = [item for item in flist01 if item not in flist02]
+    # for item in foutlist:
+    #     imgfile = os.path.join(dir01, item)
+    #     outfile = os.path.join(outdir, item)
+    #     shutil.copy(imgfile, outfile)
     starttrain()
     print("finish train")

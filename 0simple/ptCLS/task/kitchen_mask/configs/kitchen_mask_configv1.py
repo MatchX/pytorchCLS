@@ -30,7 +30,7 @@ class modelconfig(configbase.configBase):
         self.modcfg.train_type = "kitche_mask"
         self.modcfg.trainflg = "V1"
         # resnet26d resnet34d resnet50d resnet101d resnet152d resnet200d  vit_base_patch16_224 vit_base_patch16_224_in21k regnety_032 regnety_120
-        self.modcfg.netname = "resnet34d"
+        self.modcfg.netname = "vit_base_patch16_224" # "vit_base_patch16_224"
 
     def _makedataconfig(self):
         """
@@ -39,7 +39,7 @@ class modelconfig(configbase.configBase):
         platformname = platform.system().lower()
         # 训练数据
         if platformname == 'windows':
-            predir = "E:/AIdata/mask_classification/"
+            predir = R"F:\0match\AIdata\datasets\mask_classification/"
         else:  # linux
             predir = "/home/huangjunjie/datasets/chufang/mask_classification/"
         self.datacfg.traindata = [
@@ -47,11 +47,17 @@ class modelconfig(configbase.configBase):
             predir + "gt_2021.7.20_2/",
             predir + "gt_2021.7.20_3/",
             predir + "gt_2021.7.20_4/",
+            predir + "gt_2025.2.12/",
+            predir + "gt_2025.2.14/",
+            predir + "gt_2025.2.17/",
+            predir + "gt_2025.2.18/",
+            predir + "gt_2025.2.19/",
+            predir + "gt_2025.2.19_1/",
         ]
 
         # 测试数据
         if platformname == 'windows':
-            predir = "E:/AIdata/mask_classification/"
+            predir = R"F:\0match\AIdata\datasets\mask_classification/"
         else:  # linux
             predir = "/home/huangjunjie/datasets/chufang/mask_classification/"
         self.datacfg.valdata = [
@@ -59,7 +65,7 @@ class modelconfig(configbase.configBase):
         ]
 
         # 标签类型与对应目录配置
-        self.datacfg.label_map = {"no_mask": 0, "mask": 1, "no_face": 2}
+        self.datacfg.label_map = {"no_mask": 0, "mask": 1, "no_face": 1}
         # 是否重新生成标签文本
         self.datacfg.rebuild_label = True
 
@@ -192,8 +198,8 @@ class modelconfig(configbase.configBase):
         self.hypcfg.seed = 89  # the init seed
         self.hypcfg.totalepoch = 60  # he tranin total epoch
         self.hypcfg.saverate = 0.5  # 相对于总训练批次 模型保存的比例
-        self.hypcfg.trainbatchsize = 32  # the tranin batch size
-        self.hypcfg.testbatchsize = 32  # the test batch size
+        self.hypcfg.trainbatchsize = 256  # the tranin batch size
+        self.hypcfg.testbatchsize = 1  # the test batch size
         self.hypcfg.useamp = True  # use Native AMP for mixed precision training
         self.hypcfg.sync_bn = False  # bn层同步
         self.hypcfg.use_ema = True  # 使用指数移动平均
