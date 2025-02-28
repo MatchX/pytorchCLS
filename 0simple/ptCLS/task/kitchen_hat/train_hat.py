@@ -2,6 +2,7 @@
 """ ImageNet Training Script
 """
 import os
+os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
 import argparse
 import time
 from hat_trainer import ModelTrainer
@@ -9,8 +10,8 @@ from hat_trainer import ModelTrainer
 
 def exportmodel(modeltrainer):
     basedir = "./"
-    weight_path = basedir + "epoch_89_98.05.ptcp"
-    outpath = "./kitchen_hat_22_01_12c.onnx"
+    weight_path = basedir + "epoch_89_97.78.ptcp"
+    outpath = "./kitchen_hat_22_01_18a.onnx"
     modeltrainer.convert2onnx(weight_path, outpath)
 
 

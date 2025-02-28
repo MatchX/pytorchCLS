@@ -10,6 +10,7 @@ import cv2
 from PIL import Image
 import platform
 from matchx import configbase
+import os
 
 
 class modelconfig(configbase.configBase):
@@ -40,34 +41,35 @@ class modelconfig(configbase.configBase):
 
         # 训练数据
         if platformname == 'windows':
-            predir = "D:/dataset/chufang/hat_classification/"
+            predir4train = r"E:\WorkSpace\AIbase\pytorchCLS\dataset\hat_classification/"
         else:  # linux
-            predir = "/home/luoqinhan/datasets/chufang/hat_classification/"
+            predir4train = "/home/huangjunjie/datasets/chufang/hat_classification/"
         self.datacfg.traindata = [
             # predir + "train_2021.2.23/",
             # predir + "train_2021.4.7/",
             # predir + "train_2021.4.19/",
             # predir + "train_2021.8.2/",
 
-            predir + "train_2021_12_02_0/",
-            predir + "train_2021_12_02_1/",
-            predir + "train_2021_12_02A/",
-            predir + "train_2021_12_02B/",
-            predir + "train_2021_12_06/",
-            predir + "train_2021_12_08/",
-            predir + "train_2021_12_09/",
-            predir + "train_2021_12_10/",
-            predir + "train_2022_01_07/",
-            predir + "train_2022_01_17/",
+            predir4train + "train_2021_12_02_0/",
+            predir4train + "train_2021_12_02_1/",
+            predir4train + "train_2021_12_02A/",
+            predir4train + "train_2021_12_02B/",
+            predir4train + "train_2021_12_06/",
+            predir4train + "train_2021_12_08/",
+            predir4train + "train_2021_12_09/",
+            predir4train + "train_2021_12_10/",
+            predir4train + "train_2022_01_07/",
+            predir4train + "train_2022_01_17/",
+            predir4train + "train_20250228/",
         ]
 
         # 测试数据
         if platformname == 'windows':
-            predir = "D:/dataset/chufang/hat_classification/"
+            predir4test = predir4train
         else:  # linux
-            predir = "/home/luoqinhan/datasets/chufang/hat_classification/"
+            predir4test = predir4train
         self.datacfg.valdata = [
-            predir + "test_2021_12_09/",
+            predir4test + "test_2021_12_09/",
         ]
 
         # 标签类型与对应目录配置
@@ -80,7 +82,8 @@ class modelconfig(configbase.configBase):
         self.datacfg.std_mean = [0.229, 0.224, 0.225]
 
         # number of classes
-        self.datacfg.num_class = 2  # len(self.datacfg.label_map)
+        label_set = set(self.datacfg.label_map.values())
+        self.datacfg.num_class = len(label_set)
 
         # input data size
         self.datacfg.traininputsize = (224, 224)  # W,H
@@ -96,7 +99,7 @@ class modelconfig(configbase.configBase):
 
         # laoder config
         self.datacfg.droplast = True  # 丢弃最后的batch数据
-        self.datacfg.workernum = 32  # 数据加载线程数
+        self.datacfg.workernum = max(2, os.cpu_count()-4)  # 数据加载线程数
         self.datacfg.cacheimg = False  # 将训练图片放入内存中缓存
         self.datacfg.preloader = False  # use preloader load data
         self.datacfg.multi_epochs_loader = False  # use the multi-epochs-loader to save time at the beginning of every epoch
@@ -123,7 +126,7 @@ class modelconfig(configbase.configBase):
             # albu.Transpose(),
             albu.OneOf([
                 # 高斯噪点
-                albu.IAAAdditiveGaussianNoise(),
+                #albu.IAAAdditiveGaussianNoise(),
                 albu.GaussNoise(),
             ], p=0.2),
             albu.OneOf([
@@ -137,13 +140,13 @@ class modelconfig(configbase.configBase):
                 # 畸变相关操作
                 albu.OpticalDistortion(p=0.3),
                 albu.GridDistortion(p=.1),
-                albu.IAAPiecewiseAffine(p=0.3),
+                albu.PiecewiseAffine(p=0.3),
             ], p=0.2),
             albu.OneOf([
                 # 锐化、浮雕等操作
                 albu.CLAHE(clip_limit=2),
-                albu.IAASharpen(),
-                albu.IAAEmboss(),
+                albu.Sharpen(),
+                albu.Emboss(),
                 albu.RandomBrightnessContrast(),
             ], p=0.3),
             albu.HueSaturationValue(p=0.3),
@@ -189,7 +192,7 @@ class modelconfig(configbase.configBase):
         # torchtools.SoftTargetCrossEntropy  # torchtools.LabelSmoothingCrossEntropy # nn.CrossEntropyLoss
         self.schedulecfg.lossfun = "torchtools.LabelSmoothingCrossEntropy"
         self.schedulecfg.lr_schedule = "CosineLRScheduler"
-        self.schedulecfg.base_lr = 0.03  # base learnrate
+        self.schedulecfg.base_lr = 0.01  # base learnrate
         self.schedulecfg.warm_up_epoch = 8  # the learning rate warm epoch
         self.schedulecfg.momentum = 0.9  # the optim momentum
         self.schedulecfg.weight_decay = 0.0005  # the optim decay
@@ -198,12 +201,12 @@ class modelconfig(configbase.configBase):
         """
         生成超参数配置文件
         """
-        self.hypcfg.log_root = "workdir/"  # log root dir
+        self.hypcfg.log_root = "workdir_hat/"  # log root dir
         self.hypcfg.seed = 89  # the init seed
-        self.hypcfg.totalepoch = 90  # he tranin total epoch
+        self.hypcfg.totalepoch = 40  # he tranin total epoch
         self.hypcfg.saverate = 0.5  # 相对于总训练批次 模型保存的比例
-        self.hypcfg.trainbatchsize = 128  # the tranin batch size
-        self.hypcfg.testbatchsize = 32  # the test batch size
+        self.hypcfg.trainbatchsize = 32  # the tranin batch size
+        self.hypcfg.testbatchsize = 1  # the test batch size
         self.hypcfg.useamp = True  # use Native AMP for mixed precision training
         self.hypcfg.sync_bn = False  # bn层同步
         self.hypcfg.use_ema = True  # 使用指数移动平均
