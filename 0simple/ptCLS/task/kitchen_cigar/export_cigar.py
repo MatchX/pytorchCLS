@@ -9,9 +9,13 @@ from cigar_trainer import ModelTrainer
 
 
 def exportmodel(modeltrainer):
-    basedir = "./"
-    weight_path = basedir + "best04.ptcp"
-    outpath = "./kitchen_cigar_04best.onnx"
+    # kitche_mask_vit_base_patch16_224_V1_7
+    # kitche_mask_resnet26d_V1_10
+    basedir = "./workdir/" + "kitche_cigar_vit_tiny_patch16_224_in21k_V1_1" + "/checkpoint/"
+    weight_path = basedir + "best.ptcp" # "epoch_59_96.99.ptcp"
+    # kitchen_mask_resnet2d_250217
+    # kitchen_mask_vit224_250217
+    outpath = basedir + "kitchen_cigar_vit224_250220_1.onnx"
     modeltrainer.convert2onnx(weight_path, outpath)
 
 
@@ -23,9 +27,9 @@ def starttrain():
     # 创建训练器
     modeltrainer = ModelTrainer.inittrainer(premodule + "configs.kitchen_cigar_configv1")
     # modeltrainer.classdemo()
-    modeltrainer.train()
+    #modeltrainer.train()
     # 导出模型
-    #exportmodel(modeltrainer)
+    exportmodel(modeltrainer)
 
 
 def evalmodel():

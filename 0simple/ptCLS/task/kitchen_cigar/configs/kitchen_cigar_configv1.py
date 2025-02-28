@@ -30,7 +30,7 @@ class modelconfig(configbase.configBase):
         self.modcfg.train_type = "kitche_cigar"
         self.modcfg.trainflg = "V1"
         # resnet26d resnet34d resnet50d resnet101d resnet152d resnet200d  vit_base_patch16_224 vit_base_patch16_224_in21k regnety_032 regnety_120 vit_tiny_patch16_224_in21k
-        self.modcfg.netname = "resnet34d" # "vit_tiny_patch16_224_in21k"
+        self.modcfg.netname = "vit_tiny_patch16_224_in21k" # "resnet34d" "vit_tiny_patch16_224_in21k"
 
     def _makedataconfig(self):
         """
@@ -50,7 +50,9 @@ class modelconfig(configbase.configBase):
             predir + "20220113/",
             predir + "mpcap01/",
             predir + "v0/",
-            predir + "20241227/",
+            # predir + "20241227/",
+            predir + "20250220/",
+            predir + "20250220_1/",
             # predir + "20211126/",
         ]
 
@@ -196,8 +198,8 @@ class modelconfig(configbase.configBase):
         self.hypcfg.seed = 89  # the init seed
         self.hypcfg.totalepoch = 60  # he tranin total epoch
         self.hypcfg.saverate = 0.5  # 相对于总训练批次 模型保存的比例
-        self.hypcfg.trainbatchsize = 32  # the tranin batch size
-        self.hypcfg.testbatchsize = 32  # the test batch size
+        self.hypcfg.trainbatchsize = 256  # the tranin batch size
+        self.hypcfg.testbatchsize = 1  # the test batch size
         self.hypcfg.useamp = True  # use Native AMP for mixed precision training
         self.hypcfg.sync_bn = False  # bn层同步
         self.hypcfg.use_ema = True  # 使用指数移动平均
