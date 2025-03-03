@@ -31,7 +31,7 @@ class modelconfig(configbase.configBase):
         self.modcfg.train_type = "kitche_hat"
         self.modcfg.trainflg = "V3"
         # resnet26d resnet34d resnet50d resnet101d resnet152d resnet200d  vit_base_patch16_224 vit_base_patch16_224_in21k regnety_032 regnety_120 vit_tiny_patch16_224_in21k
-        self.modcfg.netname = "vit_tiny_patch16_224_in21k"
+        self.modcfg.netname = "resnet26d" # "vit_tiny_patch16_224_in21k"
 
     def _makedataconfig(self):
         """
@@ -41,7 +41,7 @@ class modelconfig(configbase.configBase):
 
         # 训练数据
         if platformname == 'windows':
-            predir4train = r"E:\WorkSpace\AIbase\pytorchCLS\dataset\hat_classification/"
+            predir4train = r"F:\0match\AIdata\hat\hat_classification/"
         else:  # linux
             predir4train = "/home/huangjunjie/datasets/chufang/hat_classification/"
         self.datacfg.traindata = [
@@ -151,7 +151,7 @@ class modelconfig(configbase.configBase):
             ], p=0.3),
             albu.HueSaturationValue(p=0.3),
         ], p=1.0)
-        # self.datacfg.transformpipeline.albutrans = albutransseq
+        # self.datacfg.transformpipeline4train.albutrans = albutransseq
 
         # torchtrans
         # torchtransseq = transforms.Compose([
@@ -164,8 +164,11 @@ class modelconfig(configbase.configBase):
         #     transforms.Normalize(mean=self.datacfg.data_mean, std=self.datacfg.std_mean),
         # ])
         colorJitter = (0.2, 0.2, 0.1, 0.1)
+        pos_random_rate = 0.15 # 0.15
+        ext_rate = 2.0
+        new_extrate = 0.18
         torchtransseq = transforms.Compose([
-            configbase.RandomCrop(0.15, 2.0, new_expansion_rate=0.18, to_bgr=False),  # set to_bgr=False
+            configbase.RandomCrop(pos_random_rate, ext_rate, new_expansion_rate=new_extrate, to_bgr=False),  # set to_bgr=False
             transforms.Resize(self.datacfg.traininputsize),  # [H,W] format
             transforms.ColorJitter(*colorJitter),
             transforms.RandomRotation((-20, 20)),
@@ -177,7 +180,7 @@ class modelconfig(configbase.configBase):
         # 测试数据处理流程
         self.datacfg.transformpipeline4test = Dict()
         torchtransseq = transforms.Compose([
-            configbase.CenterCrop(1.18/3, to_bgr=False),  # set to_bgr=False
+            configbase.CenterCrop((new_extrate + 1)/(ext_rate + 1), to_bgr=False),  # set to_bgr=False
             transforms.Resize(self.datacfg.traininputsize),  # [H,W] format
             transforms.ToTensor(),
             transforms.Normalize(mean=self.datacfg.data_mean, std=self.datacfg.std_mean),

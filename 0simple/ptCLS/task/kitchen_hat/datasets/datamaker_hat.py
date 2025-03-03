@@ -230,7 +230,7 @@ class dataloaderMaker(object):
             if len(dataconfig.valdata) > 0:
                 with torch_distributed_zero_first(rank):
                     testset = kitchen_hatDataSet(dataconfig.valdata, dataconfig, istrain=False)
-                testloader = torch.utils.data.DataLoader(testset, batch_size=hypconfig.testbatchsize, shuffle=False, num_workers=workernum, pin_memory=True)
+                testloader = torch.utils.data.DataLoader(testset, batch_size=hypconfig.testbatchsize, shuffle=False, drop_last=False, num_workers=workernum, pin_memory=True)
 
         datasetloader = torchtools.dataSetLoader(trainloader, testloader, False, datamean, datastd)
         return datasetloader, datasets
